@@ -14,7 +14,7 @@ pip install kr-translation
 
 ### Getting OPENAI API KEY
 
-1. Go to [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+1. Go to [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys), follow instruction over there.
 
 2. Save the API KEY somewhere save.
 
