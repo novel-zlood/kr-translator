@@ -42,7 +42,7 @@ class TextTranslator:
         )
         self.source_file_location = source_file_location
 
-    def translate(self):
+    def translate(self, characters="", additional_info=""):
         try:
             loader = TextLoader(self.source_file_location)
             document = loader.load()
@@ -52,7 +52,13 @@ class TextTranslator:
             ) from e
 
         prompt = ChatPromptTemplate.from_messages(
-            [("system", _get_prompt()), ("human", "{input}")]
+            [
+                (
+                    "system",
+                    _get_prompt(additional=additional_info, characters=characters),
+                ),
+                ("human", "{input}"),
+            ]
         )
         parser = StrOutputParser()
 
