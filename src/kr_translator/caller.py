@@ -33,6 +33,18 @@ def _get_prompt(additional="", characters=""):
 
 
 class TextTranslator:
+    """
+    A class used to translate text from a source file using the OpenAI API.
+
+    Attributes:
+        api_key (str): The API key for accessing OpenAI services.
+        source_file_location (str): The location of the source text file to be translated.
+
+    Methods:
+        translate(characters="", additional_info=""): Translates the text from the source file using the specified characters and additional information.
+        save_translation(destination_file_location="file.txt"): Saves the translated text to the specified destination file location.
+    """
+
     def __init__(self, api_key, source_file_location):
         if not source_file_location.endswith(".txt"):
             raise ValueError("The source file must be a .txt file")
@@ -43,6 +55,19 @@ class TextTranslator:
         self.source_file_location = source_file_location
 
     def translate(self, characters="", additional_info=""):
+        """
+        Translates the text from the source file using the specified characters and additional information.
+
+        Args:
+            characters (str, optional): Specific characters or personalities to use in the translation. Defaults to "".
+            additional_info (str, optional): Additional information or context to provide to the translation model. Defaults to "".
+
+        Returns:
+            str: The translated text.
+
+        Raises:
+            TextLoaderError: If the source file cannot be loaded.
+        """
         try:
             loader = TextLoader(self.source_file_location)
             document = loader.load()
@@ -74,6 +99,12 @@ class TextTranslator:
             return output
 
     def save_translation(self, destination_file_location: str = "file.txt"):
+        """
+        Saves the translated text to the specified destination file location.
+
+        Args:
+            destination_file_location (str, optional): The location to save the translated text file. Defaults to "file.txt".
+        """
         translated_text = self.translate()
 
         with open(destination_file_location, "w") as file:
