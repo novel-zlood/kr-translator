@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "kr-translator"
+version = "0.1.0"
+description = ""
+authors = ["zlood"]
+license = "MIT"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+langchain = "^0.2.6"
+langchain-community = "^0.2.6"
+langchain-openai = "^0.1.13"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+pytest-asyncio = "^0.23.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+minversion = 6.0
+addopts = "-ra -q -m 'not call_openai'"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = """
+    call_openai: mark tests that call OpenAI APIs
+"""

@@ -1,0 +1,2 @@
+class TextLoaderError(Exception):
+    pass
