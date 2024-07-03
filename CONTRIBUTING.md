@@ -41,13 +41,20 @@ If you want to submit changes, please start with commenting the issue page where
    git checkout -b my-new-feature
    ```
 
-3. Install dependencies.
+3. Prepare a virtual environment
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   ```
+   
+4. Install dependencies.
 
    ```bash
    poetry install
    ```
    
-4. Run the test
+5. Run the test
 
    ```bash
    poetry run pytest
