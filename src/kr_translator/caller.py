@@ -98,14 +98,16 @@ class TextTranslator:
 
             return output
 
-    def save_translation(self, destination_file_location: str = "file.txt"):
+    def save_translation(self, destination_file_location: str = "file.txt", characters="", additional_info=""):
         """
         Saves the translated text to the specified destination file location.
 
         Args:
             destination_file_location (str, optional): The location to save the translated text file. Defaults to "file.txt".
+            characters (str, optional): character information to be passed to prompt
+            additional_info (str, optional): additional information to be passed to prompt
         """
-        translated_text = self.translate()
+        translated_text = self.translate(characters=characters, additional_info=additional_info)
 
         with open(destination_file_location, "w") as file:
             file.write(translated_text)
