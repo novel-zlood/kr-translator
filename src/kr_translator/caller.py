@@ -24,11 +24,11 @@ def _get_prompt(additional="", characters=""):
         # additional instruction
     """
     return (
-        baseline_instructions
-        + named_entities
-        + characters
-        + additional_instruction
-        + additional
+            baseline_instructions
+            + named_entities
+            + characters
+            + additional_instruction
+            + additional
     )
 
 
@@ -38,6 +38,7 @@ class TextTranslator:
 
     Attributes:
         api_key (str): The API key for accessing OpenAI services.
+        model (str): Open AI model to be used for translation, defaults to GPT 4o.
         source_file_location (str): The location of the source text file to be translated.
 
     Methods:
@@ -45,12 +46,12 @@ class TextTranslator:
         save_translation(destination_file_location="file.txt"): Saves the translated text to the specified destination file location.
     """
 
-    def __init__(self, api_key, source_file_location):
+    def __init__(self, api_key, source_file_location, model="gpt-4o"):
         if not source_file_location.endswith(".txt"):
             raise ValueError("The source file must be a .txt file")
         self.llm = ChatOpenAI(
             openai_api_key=api_key,
-            model="gpt-4o",
+            model=model,
         )
         self.source_file_location = source_file_location
 
