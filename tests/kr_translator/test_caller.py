@@ -38,6 +38,6 @@ def test_save_translation(mock_translate, mock_file):
     translator = TextTranslator(api_key="test_api_key", source_file_location="test.txt")
     translator.save_translation("destination.txt")
 
-    mock_translate.assert_called_once_with()
+    mock_translate.assert_called_once()
     mock_file.assert_called_once_with("destination.txt", "w")
     mock_file().write.assert_called_once_with("Some translated English text")
