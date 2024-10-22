@@ -5,6 +5,9 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai.chat_models import ChatOpenAI
 from langchain_core.output_parsers.string import StrOutputParser
 
+from langsmith import traceable
+from langsmith.run_helpers import get_current_run_tree
+
 from kr_translator.exceptions import TextLoaderError
 
 
@@ -71,6 +74,7 @@ class TextTranslator:
         else:
             raise ValueError(f"Unsupported model_type: {self.model_type}")
 
+    @traceable
     def translate(self, characters="", additional_info=""):
         """
         Translates the text from the source file using the specified characters and additional information.
@@ -85,6 +89,8 @@ class TextTranslator:
         Raises:
             TextLoaderError: If the source file cannot be loaded.
         """
+        run = get_current_run_tree()
+
         try:
             loader = TextLoader(self.source_file_location)
             document = loader.load()
@@ -108,7 +114,8 @@ class TextTranslator:
 
         output = chain.invoke({"input": document})
 
-        print(output.usage_metadata)
+        print(run.total_tokens)
+        print(run.total_cost)
 
         return output
 
