@@ -1,4 +1,3 @@
-from langchain_community.callbacks import get_openai_callback
 from langchain_community.document_loaders.text import TextLoader
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -6,7 +5,6 @@ from langchain_openai.chat_models import ChatOpenAI
 from langchain_core.output_parsers.string import StrOutputParser
 
 from langsmith import traceable
-from langsmith.run_helpers import get_current_run_tree
 
 from kr_translator.exceptions import TextLoaderError
 
@@ -55,7 +53,7 @@ class TextTranslator:
         self,
         api_key,
         source_file_location,
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash-exp",
         model_type="google",
     ):
         if not source_file_location.endswith(".txt"):
@@ -89,7 +87,7 @@ class TextTranslator:
         Raises:
             TextLoaderError: If the source file cannot be loaded.
         """
-        run = get_current_run_tree()
+
 
         try:
             loader = TextLoader(self.source_file_location)
@@ -113,9 +111,6 @@ class TextTranslator:
         chain = prompt | self.llm | parser
 
         output = chain.invoke({"input": document})
-
-        print(run.total_tokens)
-        print(run.total_cost)
 
         return output
 
