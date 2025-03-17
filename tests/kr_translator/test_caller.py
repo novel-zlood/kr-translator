@@ -3,6 +3,7 @@ import pytest
 import re
 from unittest.mock import patch, mock_open
 from kr_translator.caller import TextTranslator
+from kr_translator.utils import has_repeating_chars
 
 
 def contains_korean(text):
@@ -44,6 +45,16 @@ def test_translate(source_test_file):
 
     assert isinstance(output, str)
     assert len(output) > 100
+
+
+def test_translate_no_repeating_chars(source_test_file):
+    translator = TextTranslator(
+        api_key=os.environ["GOOGLE_API_KEY"],
+        source_file_location=source_test_file,
+    )
+    output = translator.translate()
+
+    assert has_repeating_chars(output) == False
 
 
 def test_translate_sound(sound_test_file):
