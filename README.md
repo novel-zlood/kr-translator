@@ -12,7 +12,7 @@ pip install kr-translation
 
 ## Usage
 
-### Getting GOOGLE_API_KEU
+### Getting GOOGLE_API_KEY
 
 1. Go to [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey), follow instruction over there.
 
