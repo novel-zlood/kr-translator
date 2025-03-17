@@ -40,7 +40,7 @@ class TextTranslator:
 
     Attributes:
         api_key (str): The API key for accessing LLM services.
-        model (str): Model to be used for translation, defaults to GPT-4o.
+        model (str): Model to be used for translation, defaults to gemini-2.0-flash-exp.
         model_type (str): Specifies the type of model provider ("open_ai" or "google").
         source_file_location (str): The location of the source text file to be translated.
 
