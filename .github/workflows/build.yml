@@ -9,7 +9,6 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
     steps:
-      steps:
       - name: Check out the code
         uses: actions/checkout@v3
 
