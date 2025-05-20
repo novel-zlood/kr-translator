@@ -2,8 +2,8 @@ import os
 import pytest
 import re
 from unittest.mock import patch, mock_open
-from kr_translator.caller import TextTranslator
-from kr_translator.utils import has_repeating_chars
+from kr_translator.core.caller import TextTranslator
+from kr_translator.core.utils import has_repeating_chars
 
 
 def contains_korean(text):
@@ -36,6 +36,7 @@ def test_translate_sound(sound_test_file):
     assert not contains_korean(output)
 
 
+@pytest.mark.call_openai
 def test_translate(source_test_file):
     translator = TextTranslator(
         api_key=os.environ["GOOGLE_API_KEY"],
@@ -47,6 +48,7 @@ def test_translate(source_test_file):
     assert len(output) > 100
 
 
+@pytest.mark.call_openai
 def test_translate_no_repeating_chars(source_test_file):
     translator = TextTranslator(
         api_key=os.environ["GOOGLE_API_KEY"],
@@ -57,6 +59,7 @@ def test_translate_no_repeating_chars(source_test_file):
     assert has_repeating_chars(output) == False
 
 
+@pytest.mark.call_openai
 def test_translate_sound(sound_test_file):
     translator = TextTranslator(
         api_key=os.environ["GOOGLE_API_KEY"],
@@ -72,9 +75,9 @@ def test_translate_invalid_file():
         TextTranslator(api_key="test_api_key", source_file_location="test.pdf")
 
 
-@patch("kr_translator.caller.open", new_callable=mock_open)
+@patch("kr_translator.core.caller.open", new_callable=mock_open)
 @patch(
-    "kr_translator.caller.TextTranslator.translate",
+    "kr_translator.core.caller.TextTranslator.translate",
     return_value="Some translated English text",
 )
 def test_save_translation(mock_translate, mock_file):

@@ -6,7 +6,7 @@ from langchain_core.output_parsers.string import StrOutputParser
 
 from langsmith import traceable
 
-from kr_translator.exceptions import TextLoaderError
+from kr_translator.core.exceptions import TextLoaderError
 
 
 def _get_prompt(additional="", characters=""):

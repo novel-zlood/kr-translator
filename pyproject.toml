@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kr-translator"
-version = "0.1.8-pre"
+version = "0.2.0-alpha.0"
 description = "Translate korean text"
 authors = ["zlood"]
 license = "MIT"
@@ -9,6 +9,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent"
+]
+packages = [
+  { include = "kr_translator" }
 ]
 
 [tool.poetry.dependencies]
@@ -39,3 +42,7 @@ asyncio_mode = "auto"
 markers = """
     call_openai: mark tests that call OpenAI APIs
 """
+
+[tool.mypy]
+# Treat translator.translator as a package root
+namespace_packages = true
