@@ -88,7 +88,6 @@ class TextTranslator:
             TextLoaderError: If the source file cannot be loaded.
         """
 
-
         try:
             loader = TextLoader(self.source_file_location)
             document = loader.load()
