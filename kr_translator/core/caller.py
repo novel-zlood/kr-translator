@@ -52,13 +52,9 @@ class TextTranslator:
     def __init__(
         self,
         api_key,
-        source_file_location,
         model="gemini-2.0-flash-exp",
         model_type="google",
     ):
-        if not source_file_location.endswith(".txt"):
-            raise ValueError("The source file must be a .txt file")
-        self.source_file_location = source_file_location
         self.model_type = model_type
 
         # Initialize the LLM based on model_type
@@ -73,11 +69,12 @@ class TextTranslator:
             raise ValueError(f"Unsupported model_type: {self.model_type}")
 
     @traceable
-    def translate(self, characters="", additional_info=""):
+    def translate(self, source_file_location: str, characters="", additional_info=""):
         """
         Translates the text from the source file using the specified characters and additional information.
 
         Args:
+            source_file_location (str): The location of the source text file to be translated.
             characters (str, optional): Specific characters or personalities to use in the translation. Defaults to "".
             additional_info (str, optional): Additional information or context to provide to the translation model. Defaults to "".
 
@@ -87,6 +84,9 @@ class TextTranslator:
         Raises:
             TextLoaderError: If the source file cannot be loaded.
         """
+
+        if not source_file_location.endswith(".txt"):
+            raise ValueError("The source file must be a .txt file")
 
         try:
             loader = TextLoader(self.source_file_location)

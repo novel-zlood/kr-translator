@@ -15,10 +15,9 @@ def contains_korean(text):
 def test_translate(source_test_file):
     translator = TextTranslator(
         api_key=os.environ["OPENAI_API_KEY"],
-        source_file_location=source_test_file,
         model_type="open_ai",
     )
-    output = translator.translate()
+    output = translator.translate(source_file_location=source_test_file)
 
     assert isinstance(output, str)
     assert len(output) > 100
@@ -28,21 +27,19 @@ def test_translate(source_test_file):
 def test_translate_sound(sound_test_file):
     translator = TextTranslator(
         api_key=os.environ["OPENAI_API_KEY"],
-        source_file_location=sound_test_file,
         model_type="open_ai",
     )
-    output = translator.translate()
+    output = translator.translate(source_file_location=sound_test_file)
 
     assert not contains_korean(output)
 
 
 @pytest.mark.call_openai
-def test_translate(source_test_file):
+def test_translate_gemini(source_test_file):
     translator = TextTranslator(
         api_key=os.environ["GOOGLE_API_KEY"],
-        source_file_location=source_test_file,
     )
-    output = translator.translate()
+    output = translator.translate(source_file_location=source_test_file)
 
     assert isinstance(output, str)
     assert len(output) > 100
@@ -52,27 +49,26 @@ def test_translate(source_test_file):
 def test_translate_no_repeating_chars(source_test_file):
     translator = TextTranslator(
         api_key=os.environ["GOOGLE_API_KEY"],
-        source_file_location=source_test_file,
     )
-    output = translator.translate()
+    output = translator.translate(source_file_location=source_test_file)
 
-    assert has_repeating_chars(output) == False
+    assert not has_repeating_chars(output)
 
 
 @pytest.mark.call_openai
-def test_translate_sound(sound_test_file):
+def test_translate_sound_gemini(sound_test_file):
     translator = TextTranslator(
         api_key=os.environ["GOOGLE_API_KEY"],
-        source_file_location=sound_test_file,
     )
-    output = translator.translate()
+    output = translator.translate(source_file_location=sound_test_file)
 
     assert not contains_korean(output)
 
 
 def test_translate_invalid_file():
+    translator = TextTranslator(api_key="test_api_key")
     with pytest.raises(ValueError, match="The source file must be a .txt file"):
-        TextTranslator(api_key="test_api_key", source_file_location="test.pdf")
+        translator.translate(source_file_location="test.pdf")
 
 
 @patch("kr_translator.core.caller.open", new_callable=mock_open)
@@ -81,7 +77,7 @@ def test_translate_invalid_file():
     return_value="Some translated English text",
 )
 def test_save_translation(mock_translate, mock_file):
-    translator = TextTranslator(api_key="test_api_key", source_file_location="test.txt")
+    translator = TextTranslator(api_key="test_api_key")
     translator.save_translation("destination.txt")
 
     mock_translate.assert_called_once()
