@@ -89,6 +89,24 @@ output = translator.translate(
 )
 ```
 
+### Using translation memory
+
+Enable memory to maintain consistency across multiple translation sessions. The translator keeps a `.memory` file in the current directory that tracks character names, terminology, and plot context.
+
+```python
+from kr_translator import TextTranslator
+
+translator = TextTranslator(api_key="your_google_api_key", use_memory=True)
+
+# First translation creates .memory file with a summary
+output1 = translator.translate("chapter 1 korean text")
+
+# Second translation reads .memory for context, then updates it
+output2 = translator.translate("chapter 2 korean text")
+```
+
+Each call makes a second LLM request to update the summary (~500 words), so character names, relationships, and terminology stay consistent across chapters.
+
 ### Using a specific Gemini model
 
 By default, we use `gemini-2.5-flash`. You can specify a different model:
