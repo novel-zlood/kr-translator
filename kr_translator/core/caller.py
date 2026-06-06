@@ -1,12 +1,13 @@
-from langchain_community.document_loaders.text import TextLoader
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_openai.chat_models import ChatOpenAI
-from langchain_core.output_parsers.string import StrOutputParser
+from pathlib import Path
 
 from langsmith import traceable
 
-from kr_translator.core.exceptions import TextLoaderError
+from kr_translator.core.generator import (
+    BaseGenerator,
+    ClaudeGenerator,
+    GeminiGenerator,
+    OpenAIGenerator,
+)
 
 
 def _get_prompt(additional="", characters=""):
@@ -34,102 +35,59 @@ def _get_prompt(additional="", characters=""):
     )
 
 
+_GENERATOR_MAP = {
+    "google": GeminiGenerator,
+    "open_ai": OpenAIGenerator,
+    "anthropic": ClaudeGenerator,
+}
+
+
+def _create_generator(api_key: str, model: str | None, model_type: str) -> BaseGenerator:
+    cls = _GENERATOR_MAP.get(model_type)
+    if cls is None:
+        raise ValueError(
+            f"Unsupported model_type: {model_type!r}. "
+            f"Choose from: {', '.join(_GENERATOR_MAP)}"
+        )
+    if model is not None:
+        return cls(api_key=api_key, model=model)
+    return cls(api_key=api_key)
+
+
 class TextTranslator:
-    """
-    A class used to translate text from a source file using various LLM APIs.
-
-    Attributes:
-        api_key (str): The API key for accessing LLM services.
-        model (str): Model to be used for translation, defaults to gemini-2.0-flash-exp.
-        model_type (str): Specifies the type of model provider ("open_ai" or "google").
-        source_file_location (str): The location of the source text file to be translated.
-
-    Methods:
-        translate(characters="", additional_info=""): Translates the text from the source file.
-        save_translation(destination_file_location="file.txt"): Saves the translated text to a specified location.
-    """
 
     def __init__(
         self,
-        api_key,
-        model="gemini-2.0-flash-exp",
-        model_type="google",
+        api_key: str,
+        model: str | None = None,
+        model_type: str = "google",
     ):
-        self.model_type = model_type
-
-        # Initialize the LLM based on model_type
-        self.llm = self._initialize_llm(api_key, model)
-
-    def _initialize_llm(self, api_key, model):
-        if self.model_type == "open_ai":
-            return ChatOpenAI(openai_api_key=api_key, model=model)
-        elif self.model_type == "google":
-            return ChatGoogleGenerativeAI(google_api_key=api_key, model=model)
-        else:
-            raise ValueError(f"Unsupported model_type: {self.model_type}")
+        self.generator = _create_generator(api_key, model, model_type)
 
     @traceable
-    def translate(self, source_file_location: str, characters="", additional_info=""):
-        """
-        Translates the text from the source file using the specified characters and additional information.
+    def translate(self, text: str, characters: str = "", additional_info: str = "") -> str:
+        system_prompt = _get_prompt(additional=additional_info, characters=characters)
+        return self.generator.generate(text, system_prompt)
 
-        Args:
-            source_file_location (str): The location of the source text file to be translated.
-            characters (str, optional): Specific characters or personalities to use in the translation. Defaults to "".
-            additional_info (str, optional): Additional information or context to provide to the translation model. Defaults to "".
-
-        Returns:
-            str: The translated text.
-
-        Raises:
-            TextLoaderError: If the source file cannot be loaded.
-        """
-
-        if not source_file_location.endswith(".txt"):
-            raise ValueError("The source file must be a .txt file")
-
-        try:
-            loader = TextLoader(self.source_file_location)
-            document = loader.load()
-        except Exception as e:
-            raise TextLoaderError(
-                f"Failed to load the file {self.source_file_location}"
-            ) from e
-
-        prompt = ChatPromptTemplate.from_messages(
-            [
-                (
-                    "system",
-                    _get_prompt(additional=additional_info, characters=characters),
-                ),
-                ("human", "{input}"),
-            ]
-        )
-        parser = StrOutputParser()
-
-        chain = prompt | self.llm | parser
-
-        output = chain.invoke({"input": document})
-
-        return output
+    @traceable
+    def translate_file(
+        self,
+        source_file_location: str,
+        characters: str = "",
+        additional_info: str = "",
+    ) -> str:
+        path = Path(source_file_location)
+        if not path.exists():
+            raise FileNotFoundError(f"Source file not found: {source_file_location}")
+        text = path.read_text(encoding="utf-8")
+        return self.translate(text, characters=characters, additional_info=additional_info)
 
     def save_translation(
         self,
+        text: str,
         destination_file_location: str = "file.txt",
-        characters="",
-        additional_info="",
-    ):
-        """
-        Saves the translated text to the specified destination file location.
-
-        Args:
-            destination_file_location (str, optional): The location to save the translated text file. Defaults to "file.txt".
-            characters (str, optional): character information to be passed to prompt
-            additional_info (str, optional): additional information to be passed to prompt
-        """
-        translated_text = self.translate(
-            characters=characters, additional_info=additional_info
-        )
-
-        with open(destination_file_location, "w") as file:
-            file.write(translated_text)
+        characters: str = "",
+        additional_info: str = "",
+    ) -> None:
+        translated = self.translate(text, characters=characters, additional_info=additional_info)
+        Path(destination_file_location).write_text(translated, encoding="utf-8")

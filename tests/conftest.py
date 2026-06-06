@@ -1,28 +1,21 @@
-import pytest_asyncio
 import os
 
+import pytest
 
-@pytest_asyncio.fixture()
+
+@pytest.fixture()
 def source_test_file():
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    file_location = os.path.join(current_dir, "resources", "test_file.txt")
-
-    return file_location
+    return os.path.join(current_dir, "resources", "test_file.txt")
 
 
-@pytest_asyncio.fixture()
+@pytest.fixture()
 def sound_test_file():
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    file_location = os.path.join(current_dir, "resources", "test_sound_effect.txt")
-
-    return file_location
+    return os.path.join(current_dir, "resources", "test_sound_effect.txt")
 
 
-@pytest_asyncio.fixture()
-def source_text():
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    file_location = os.path.join(current_dir, "resources", "test_file.txt")
-
-    text = open(file_location, "r")
-
-    return text
+@pytest.fixture()
+def source_text(source_test_file):
+    with open(source_test_file, "r") as f:
+        return f.read()

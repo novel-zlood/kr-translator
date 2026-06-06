@@ -1,6 +1,6 @@
 # KR Translator
 
-Translate a korean `txt` file.
+Translate Korean text using LLM APIs (Google Gemini, OpenAI, Claude).
 
 ## Installation
 
@@ -16,18 +16,26 @@ pip install kr-translation
 
 1. Go to [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey), follow instruction over there.
 
-2. Save the API KEY somewhere save.
+2. Save the API KEY somewhere safe.
 
 ### Basic Translation
 
 ```python
-from kr_translator.caller import TextTranslator
+from kr_translator import TextTranslator
 
-translator = TextTranslator(
-  api_key="your_api_key_here", 
-  source_file_location="/path/to/file.txt"
-)
-output = translator.translate()
+translator = TextTranslator(api_key="your_google_api_key")
+output = translator.translate("안녕하세요, 오빠!")
+
+print(output)
+```
+
+### Translate from a file
+
+```python
+from kr_translator import TextTranslator
+
+translator = TextTranslator(api_key="your_google_api_key")
+output = translator.translate_file("/path/to/file.txt")
 
 print(output)
 ```
@@ -35,24 +43,20 @@ print(output)
 ### Save Translation to a file
 
 ```python
-from kr_translator.caller import TextTranslator
+from kr_translator import TextTranslator
 
-translator = TextTranslator(
-  api_key="your_api_key_here", 
-  source_file_location="/path/to/file.txt"
-)
-translator.save_translation("output_file.txt")
+translator = TextTranslator(api_key="your_google_api_key")
+
+korean_text = open("/path/to/file.txt").read()
+translator.save_translation(korean_text, "output_file.txt")
 ```
 
 ### Passing character information to improve translation
 
 ```python
-from kr_translator.caller import TextTranslator
+from kr_translator import TextTranslator
 
-translator = TextTranslator(
-  api_key="your_api_key_here", 
-  source_file_location="/path/to/file.txt"
-)
+translator = TextTranslator(api_key="your_google_api_key")
 
 character_info = """
 Seo Dalmi, a girl.
@@ -60,67 +64,68 @@ Nam Dosan, a boy.
 Han Jipyeong, a boy, team leader at SH venture capital.
 """
 
-translator.save_translation(
-    destination_file_location="output_file.txt",
-    characters=character_info
+output = translator.translate(
+    "korean text here",
+    characters=character_info,
 )
 ```
 
 ### Passing additional information to improve translation
 
 ```python
-from kr_translator.caller import TextTranslator
+from kr_translator import TextTranslator
 
-translator = TextTranslator(
-  api_key="your_api_key_here", 
-  source_file_location="/path/to/file.txt"
-)
+translator = TextTranslator(api_key="your_google_api_key")
 
-additonal_info = """
-The story revolve around startups and venture capital, therefore there is gonna be company name
+additional_info = """
+The story revolves around startups and venture capital, therefore there are company names
 that might have direct english translation, in which DO NOT translate them into english but keep
 the Korean name.
 """
 
-translator.save_translation(
-    destination_file_location="output_file.txt",
-    additional_info=additonal_info
+output = translator.translate(
+    "korean text here",
+    additional_info=additional_info,
 )
 ```
 
-### Using different Gemini model
+### Using a specific Gemini model
 
-By default, we are using experimental `gemini-2.0-flash-exp`, because it is a free model. However it comes with strict rate limit. Once we reach this limit, we need to use paid model such as `gemini-2.0-flash`.
+By default, we use `gemini-2.5-flash`. You can specify a different model:
 
 ```python
-from kr_translator.caller import TextTranslator
+from kr_translator import TextTranslator
 
 translator = TextTranslator(
-  api_key="your_api_key_here", 
-  source_file_location="/path/to/file.txt",
-  model="gemini-2.0-flash"
+    api_key="your_google_api_key",
+    model="gemini-2.5-pro",
 )
-output = translator.translate()
-
-print(output)
+output = translator.translate("korean text here")
 ```
 
 ### Using OpenAI model
 
-In order to use OpenAI model, we need OPENAI_API_KEY. Go to [this page](https://platform.openai.com/api-keys) to get it.
-
 ```python
-from kr_translator.caller import TextTranslator
+from kr_translator import TextTranslator
 
 translator = TextTranslator(
-  api_key="your_openai_api_key_here", 
-  source_file_location="/path/to/file.txt",
-  model_type="open_ai",
-  model="gpt-4o-mini",  # required when model_type is open_ai
+    api_key="your_openai_api_key",
+    model_type="open_ai",
+    model="gpt-4o-mini",
 )
-output = translator.translate()
+output = translator.translate("korean text here")
+```
 
-print(output)
+### Using Claude model
+
+```python
+from kr_translator import TextTranslator
+
+translator = TextTranslator(
+    api_key="your_anthropic_api_key",
+    model_type="anthropic",
+)
+output = translator.translate("korean text here")
 ```
 
 ## License
