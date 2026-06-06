@@ -89,6 +89,74 @@ def test_anthropic_model_type():
     assert translator.generator is not None
 
 
+# --- Memory tests ---
+
+
+def test_memory_disabled_by_default():
+    translator = TextTranslator(api_key="fake-key")
+    assert translator.use_memory is False
+
+
+def test_translate_without_memory_does_not_create_file(mock_translator, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    mock_translator.memory_path = tmp_path / ".memory"
+    with patch.object(mock_translator.generator, "generate", return_value="translated"):
+        mock_translator.translate("text")
+    assert not (tmp_path / ".memory").exists()
+
+
+def test_translate_with_memory_creates_file(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    translator = TextTranslator(api_key="fake-key", use_memory=True)
+    translator.memory_path = tmp_path / ".memory"
+    with patch.object(
+        translator.generator, "generate", side_effect=["translated text", "summary of chapter"]
+    ):
+        result = translator.translate("korean text")
+    assert result == "translated text"
+    assert (tmp_path / ".memory").exists()
+    assert (tmp_path / ".memory").read_text() == "summary of chapter"
+
+
+def test_translate_with_memory_reads_existing(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".memory").write_text("old summary")
+    translator = TextTranslator(api_key="fake-key", use_memory=True)
+    translator.memory_path = tmp_path / ".memory"
+    with patch.object(
+        translator.generator, "generate", side_effect=["translated", "updated summary"]
+    ) as mock_gen:
+        translator.translate("korean text")
+    first_call_prompt = mock_gen.call_args_list[0][0][1]
+    assert "old summary" in first_call_prompt
+
+
+def test_translate_with_memory_updates_existing(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".memory").write_text("old summary")
+    translator = TextTranslator(api_key="fake-key", use_memory=True)
+    translator.memory_path = tmp_path / ".memory"
+    with patch.object(
+        translator.generator, "generate", side_effect=["translated", "new summary"]
+    ):
+        translator.translate("korean text")
+    assert (tmp_path / ".memory").read_text() == "new summary"
+
+
+def test_memory_summarize_receives_old_and_new(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / ".memory").write_text("existing context")
+    translator = TextTranslator(api_key="fake-key", use_memory=True)
+    translator.memory_path = tmp_path / ".memory"
+    with patch.object(
+        translator.generator, "generate", side_effect=["translated output", "combined summary"]
+    ) as mock_gen:
+        translator.translate("korean")
+    summarize_prompt = mock_gen.call_args_list[1][0][1]
+    assert "existing context" in summarize_prompt
+    assert "translated output" in summarize_prompt
+
+
 # --- Integration tests (require API keys) ---
 
 
